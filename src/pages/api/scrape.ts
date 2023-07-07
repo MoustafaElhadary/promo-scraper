@@ -1,14 +1,9 @@
-import puppeteer from "puppeteer";
+import puppeteer from 'puppeteer-core'
 import hash from "hash.js";
 import { NextApiRequest, NextApiResponse } from "next";
 
 const BASE_URL = "https://moments.marriottbonvoy.com";
 
-export const config = {
-    runtime: 'edge', // this is a pre-requisite
-    regions: ['iad1'], // only execute this function on iad1
-  };
-  
 interface CardData {
   img: string;
   location: string;
@@ -22,7 +17,10 @@ interface CardData {
 }
 
 async function scrapeWebsite(): Promise<CardData[]> {
-  const browser = await puppeteer.launch({ headless: "new" });
+    console.log(process.env.BLESS_TOKEN)
+  const browser = await puppeteer.connect({
+    browserWSEndpoint: `wss://chrome.browserless.io?token=${process.env.BLESS_TOKEN}`,
+  });
 
   const page = await browser.newPage();
   await page.goto(BASE_URL + "/en-us/moments/collection/368");
