@@ -25,11 +25,10 @@ async function scrapeWebsite(): Promise<CardData[]> {
   const page = await browser.newPage();
   await page.goto(BASE_URL + "/en-us/moments/collection/368");
 
-  // wait for the content to load
   await page.waitForSelector(".card-wrap");
 
-  const scrapedData = await page.evaluate((BASE_URL) => {
-    const cards = Array.from(document.querySelectorAll(".card-wrap")); // convert NodeList to Array
+  const scrapedData = await page.evaluate(() => {
+    const cards = Array.from(document.querySelectorAll(".card-wrap"));
     return cards.map((card) => {
       const img = card.querySelector("img")?.src || "";
       const location = card.querySelector(".label.mb-0-5")?.textContent || "";
@@ -37,8 +36,8 @@ async function scrapeWebsite(): Promise<CardData[]> {
         card.querySelector(".font-swiss-italic.fz-3xs")?.textContent || "";
       const title =
         card.querySelector(".card-title.font-aldine")?.textContent || "";
-      const link = BASE_URL + (card.querySelector("a")?.href || "");
-
+      const link = card.querySelector("a")?.href || "";
+  
       const pointsElement = card.querySelector(
         ".card-text.font-weight-bold.pt-1.pb-2.mb-auto"
       );
@@ -48,17 +47,17 @@ async function scrapeWebsite(): Promise<CardData[]> {
           pointsElement.textContent?.match(/(\d+,?\d*)\spoints/);
         points = pointsMatch ? pointsMatch[1] : "";
       }
-
+  
       const isDisabled = card.classList.contains("disabled");
       const html = card.outerHTML;
-
+  
       return { img, location, date, title, link, points, isDisabled, html };
     });
-  }, BASE_URL); // pass BASE_URL as an argument
+  }, BASE_URL);
+  
 
   await browser.close();
 
-  // Generate hashes for each card outside the browser context
   const dataWithHashes: CardData[] = scrapedData.map((data) => {
     const hashString = hash
       .sha256()
