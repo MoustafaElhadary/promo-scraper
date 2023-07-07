@@ -62,7 +62,7 @@ async function scrapeWebsite(): Promise<CardData[]> {
     const hashString = hash
       .sha256()
       .update(
-        `${data.location}-${data.date}-${data.title}-${data.isDisabled}`
+        `${data.location}-${data.date}-${data.title}`
       )
       .digest("hex");
 
